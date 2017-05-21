@@ -10,6 +10,7 @@ var PORT = 3000;
 // Express is a web framework for node.js
 // that makes nontrivial applications easier to build
 var express = require('express');
+var mqtt = require('mqtt')
 
 // Create the server instance
 var app = express();
@@ -24,39 +25,59 @@ app.use(express.compress());
 // maps to /static/index.html on this machine
 app.use(express.static(__dirname + '/static'));
 
+
+
+
 // Start the server
-app.listen(PORT, 'localhost' ,function() {
+const server = app.listen(PORT, 'localhost' ,function() {
 	console.log("Node.js server running on port %s", PORT);
 });
+
+const io = require('socket.io')(3001);
+io.set('transports', ['websocket']);
+
+
+// Set socket.io listeners.
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('shutdown', (message) =>{
+   console.log("Publishing Shutdown")
+   client.publish("shutdown", message)
+	});
+
+   socket.on('stop', (message) =>{
+	console.log("Publishing stop")
+   client.publish("stop", message)
+});
+});
+
+
+
+
+console.log("Connecting client...")
+var client  = mqtt.connect('mqtt://localhost:1885',{
+  protocolId: 'MQIsdp',
+  protocolVersion: 3
+});
+
+
+client.on('connect', function () {
+  console.log("connected")
+  client.subscribe('temperature')
+  client.subscribe('shutdown_ack')
+  client.subscribe('stop_ack')
+  client.publish('controls', 'Hello mqtt')
+})
+ 
+client.on('message', function (topic, message) {
+  // message is Buffer 
+  console.log(message.toString())
+  io.sockets.emit('data', {message: message.toString()})
+  console.log('emitted data')
+})
+
 
 app.get('/hi', function (req, res) {
   res.send('Hello World!')
 })
 
-
-var net = require('net');
-
-var HOST = '192.168.7.2';
-var PORT2 = 3001;
-
-var client = new net.Socket();
-client.connect(PORT2, HOST, function() {
-
-    console.log('CONNECTED TO: ' + HOST + ':' + PORT2);
-    // Write a message to the socket as soon as the client is connected, the server will receive it as message from the client 
-    client.write('Hello');
-
-});
-
-// Add a 'data' event handler for the client socket
-// data is what the server sent to this socket
-client.on('data', function(data) {
-    
-    console.log('DATA: ' + data);
-    
-});
-
-// Add a 'close' event handler for the client socket
-client.on('close', function() {
-    console.log('Connection closed');
-});
