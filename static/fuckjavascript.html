@@ -113,7 +113,7 @@ $('.table-add').click(function () {
   var nth_action = global_nth_action++;
   var mission = global_mission++;
   var $clone = 
-  $TABLE.find('table').append('<tr><td contenteditable="true">Untitled Action</td><td contenteditable="false"><select id = "action_type_'+ mission + '_' + nth_action +'"><option value="BLANK"></option><option value="ARM">ARM</option><option value="DRIVE">DRIVE</option><option value="HAND">HAND</option></select></td><td id = "action_class_' + mission +"_" + nth_action+'"></td><td></td><td><span class="table-remove glyphicon glyphicon-remove"></span></td><td><span class="table-up glyphicon glyphicon-arrow-up"></span><span class="table-down glyphicon glyphicon-arrow-down"></span></td></tr>');
+  $TABLE.find('table').append('<tr><td contenteditable="true">Untitled Action</td><td contenteditable="false"><select id = "action_type_'+ mission + '_' + nth_action +'"><option value="BLANK"></option><option value="ARM">ARM</option><option value="DRIVE">DRIVE</option><option value="HAND">HAND</option></select></td><td id = "action_class_' + mission +"_" + nth_action+'"></td><td id = "param_class_' + mission + "_" + nth_action+'"></td><td><span class="table-remove glyphicon glyphicon-remove"></span></td><td><span class="table-up glyphicon glyphicon-arrow-up"></span><span class="table-down glyphicon glyphicon-arrow-down"></span></td></tr>');
 
  var action_selector = $("#action_type_"+ mission + "_" + nth_action);
  action_selector.on("change", function(){
@@ -125,19 +125,52 @@ $('.table-add').click(function () {
 
    if(action_selector.val() == "ARM"){
      console.log(class_to_change)
-     class_to_change.append('<select class="ARM_ACTIONS"> <option value="PRESS">PRESS</option><option value="LEVER">LEVER</option><option value="VALVE">VALVE</option><option value="DRILL">DRILL</option></select>');
+     class_to_change.append('<select id="ACTION_CLASS_SELECT_'+mission+'_'+nth_action+'"> <option value=""></option><option value="PRESS">PRESS</option><option value="LEVER">LEVER</option><option value="VALVE">VALVE</option><option value="DRILL">DRILL</option></select>');
    }
    else if(action_selector.val() == "DRIVE"){
     
-      class_to_change.append(' <select class="DRIVE_ACTIONS"><option value="DIST_HEAD">DIST HEAD</option><option value="GPS">GPS</option></select>');
+      class_to_change.append('<select id="ACTION_CLASS_SELECT_' +mission+'_'+nth_action+'"><option value=""></option><option value="DIST_HEAD">DIST HEAD</option><option value="GPS">GPS</option></select>');
    }
    else if(action_selector.val() == "HAND"){
-     class_to_change.append(' <select class="HAND_ACTIONS"><option value="GRAB">GRAB</option><option value="ROTATE">ROTATE</option></select>');
+     class_to_change.append(' <select id="ACTION_CLASS_SELECT_'+mission+'_'+nth_action+'"><option value=""></option><option value="GRAB">GRAB</option><option value="ROTATE">ROTATE</option></select>');
    }
+
+   var action_type_selection = $("#ACTION_CLASS_SELECT_"+ mission + "_" + nth_action);
+    action_type_selection.on("change", function(){
+        console.log("This was changed.")
+
+    	var params_to_update = $('#param_class_' + mission + "_" + nth_action);
+    	params_to_update.empty();
+
+    	if(action_type_selection.val() == "ROTATE" || action_selector.val() == "ARM"){
+    		params_to_update.append('x: <input type="text" class="x"></input> <br> y: <input type="text" class="y"> <br> </input> z: <input type="text" class="z"></input>');
+    	}
+    	else if(action_type_selection.val() == "GRAB"){
+    		params_to_update.append('<select class="grab"><option value="OPEN">OPEN</option><option value="CLOSE">CLOSE</option></select>');
+    	}
+    	else if(action_type_selection.val() == "GPS"){
+    		params_to_update.append('lat: <input type="text" class="x"></input> <br> long: <input type="text" class="y"></input>');
+    	}
+    	else if(action_type_selection.val() == "DIST_HEAD"){
+    		params_to_update.append('angle: <br><input type="text" class="x"></input> <br> displacement(in meters): <input type="text" class="y"></input>');
+    	}
+    	else if(action_type_selection.val() == ""){
+    		    	params_to_update.empty();
+
+    	}
+    });
+
+   });
+
+ 	
+
    
 
    
- });
+
+
+
+
    
     
 $('.table-remove').on('click', function () {
@@ -158,8 +191,9 @@ $('.table-down').click(function () {
   $row.next().after($row.get(0));
 });    
 });
-    });
-    
+});
+
+     
 </script>
 
 <script>
