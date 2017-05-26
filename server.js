@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
 
 
 console.log("Connecting client...")
-var client  = mqtt.connect('mqtt://localhost:1885',{
+var client  = mqtt.connect('mqtt://localhost:1883',{
   protocolId: 'MQIsdp',
   protocolVersion: 3
 });
@@ -66,11 +66,15 @@ client.on('connect', function () {
   client.subscribe('temperature')
   client.subscribe('shutdown_ack')
   client.subscribe('stop_ack')
+  client.subscribe('sense_feed')
   client.publish('controls', 'Hello mqtt')
 })
  
 client.on('message', function (topic, message) {
   // message is Buffer 
+  if(topic == 'sense_feed'){
+  	io.sockets.emit('sense_feed', message)
+  }
   console.log(message.toString())
   io.sockets.emit('data', {message: message.toString()})
   console.log('emitted data')

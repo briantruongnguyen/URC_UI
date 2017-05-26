@@ -71,6 +71,11 @@
   
   <button id="stop-button" class="btn btn-primary">Stop</button>
   <button id="shutdown-button" class="btn btn-primary">Shutdown</button>
+  <button id="export-button" class="btn btn-primary">Export Data</button>
+
+  <img id="sense_feed" src="" />
+
+
 
   <p id="export"></p>
 </div>
@@ -79,7 +84,7 @@
 
 <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-  <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+<script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
 
 
 
@@ -87,11 +92,45 @@
 $(function(){
 
 
+// public method for encoding an Uint8Array to base64
+function encode (input) {
+    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var output = "";
+    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+    var i = 0;
+
+    while (i < input.length) {
+        chr1 = input[i++];
+        chr2 = i < input.length ? input[i++] : Number.NaN; // Not sure if the index 
+        chr3 = i < input.length ? input[i++] : Number.NaN; // checks are needed here
+
+        enc1 = chr1 >> 2;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+
+        if (isNaN(chr2)) {
+            enc3 = enc4 = 64;
+        } else if (isNaN(chr3)) {
+            enc4 = 64;
+        }
+        output += keyStr.charAt(enc1) + keyStr.charAt(enc2) +
+                  keyStr.charAt(enc3) + keyStr.charAt(enc4);
+    }
+    return output;
+}
+
+
 
 var socket = io('http://localhost:3001', {transports: ['websocket'], upgrade: false});
  
 socket.on('data', function(message){
 	console.log('From Beaglebone to GUI ' + message.message);
+});
+
+socket.on('sense_feed', function(message){
+	console.log('We got an image')
+	document.getElementById("sense_feed").src = 'data:image/png;base64,' + encode(new Uint8Array(message));
 });
 
 $("#shutdown-button").on('click', function(){
@@ -104,6 +143,61 @@ $("#stop-button").on('click', function(){
 	socket.emit('stop', "1")
 })
 
+jQuery.fn.pop = [].pop;
+jQuery.fn.shift = [].shift;
+
+$("#export-button").on('click', function(){
+	console.log("Export");
+	var $rows = $TABLE.find('tr:not(:hidden)');
+  var headers = [];
+  var data = [];
+	$($rows.shift()).find('th:not(:empty)').each(function () {
+    	headers.push($(this).text().toLowerCase());
+  	});
+
+  	 // Turn all existing rows into a loopable array
+  $rows.each(function () {
+    var $td = $(this).find('td');
+    var h = {};
+    
+    // Use the headers from earlier to name our hash keys
+   headers.forEach(function (header, i) {
+   	  console.log(header);
+   	  
+   	  var params;
+   	  if($td.eq(i).children(".sub_action").val() != undefined){
+   	     params = $td.eq(i).children(".sub_action").val();
+   	  }
+   	  else if($td.eq(i).children(".action_selection").val() != undefined){
+   	  	   	params = $td.eq(i).children(".action_selection").val();
+
+   	  }
+   	  else if($td.eq(i).children(".x").val() != undefined){
+   	  	params = {'x': $td.eq(i).children(".x").val(), 
+   	  			  'y': $td.eq(i).children(".y").val(),
+   	  			  'z': $td.eq(i).children(".z").val()}
+   	  }
+   	  else if($td.eq(i).children(".grab").val() != undefined){
+   	  	params = {'grab': $td.eq(i).children(".grab").val()}
+   	  }
+   	  else if($td.eq(i).children(".lat").val() != undefined){
+   	  	params = {'lat': $td.eq(i).children(".lat").val(),
+   	  			  'long': $td.eq(i).children(".long").val()
+   	  	}
+   	  }
+   	  else if($td.eq(i).children(".angle").val()){
+   	  	params = {'angle':  $td.eq(i).children(".angle").val(),
+   	  			  'displacement' :$td.eq(i).children(".displacement").val()
+   	    }
+   	  }	
+
+   	  h[header] = params;    
+    });
+    
+    	data.push(h);
+	})
+   console.log(JSON.stringify(data))
+})
 var $TABLE = $('#table');
 
 var global_nth_action = 0;
@@ -113,7 +207,7 @@ $('.table-add').click(function () {
   var nth_action = global_nth_action++;
   var mission = global_mission++;
   var $clone = 
-  $TABLE.find('table').append('<tr><td contenteditable="true">Untitled Action</td><td contenteditable="false"><select id = "action_type_'+ mission + '_' + nth_action +'"><option value="BLANK"></option><option value="ARM">ARM</option><option value="DRIVE">DRIVE</option><option value="HAND">HAND</option></select></td><td id = "action_class_' + mission +"_" + nth_action+'"></td><td id = "param_class_' + mission + "_" + nth_action+'"></td><td><span class="table-remove glyphicon glyphicon-remove"></span></td><td><span class="table-up glyphicon glyphicon-arrow-up"></span><span class="table-down glyphicon glyphicon-arrow-down"></span></td></tr>');
+  $TABLE.find('table').append('<tr><td contenteditable="true">Untitled Action</td><td contenteditable="false"><select class= "action_selection" id = "action_type_'+ mission + '_' + nth_action +'"><option value="BLANK"></option><option value="ARM">ARM</option><option value="DRIVE">DRIVE</option><option value="HAND">HAND</option></select></td><td id = "action_class_' + mission +"_" + nth_action+'"></td><td id = "param_class_' + mission + "_" + nth_action+'"></td><td><span class="table-remove glyphicon glyphicon-remove"></span></td><td><span class="table-up glyphicon glyphicon-arrow-up"></span><span class="table-down glyphicon glyphicon-arrow-down"></span></td></tr>');
 
  var action_selector = $("#action_type_"+ mission + "_" + nth_action);
  action_selector.on("change", function(){
@@ -125,14 +219,14 @@ $('.table-add').click(function () {
 
    if(action_selector.val() == "ARM"){
      console.log(class_to_change)
-     class_to_change.append('<select id="ACTION_CLASS_SELECT_'+mission+'_'+nth_action+'"> <option value=""></option><option value="PRESS">PRESS</option><option value="LEVER">LEVER</option><option value="VALVE">VALVE</option><option value="DRILL">DRILL</option></select>');
+     class_to_change.append('<select class="sub_action" id="ACTION_CLASS_SELECT_'+mission+'_'+nth_action+'"> <option value=""></option><option value="PRESS">PRESS</option><option value="LEVER">LEVER</option><option value="VALVE">VALVE</option><option value="DRILL">DRILL</option></select>');
    }
    else if(action_selector.val() == "DRIVE"){
     
-      class_to_change.append('<select id="ACTION_CLASS_SELECT_' +mission+'_'+nth_action+'"><option value=""></option><option value="DIST_HEAD">DIST HEAD</option><option value="GPS">GPS</option></select>');
+      class_to_change.append('<select class="sub_action" id="ACTION_CLASS_SELECT_' +mission+'_'+nth_action+'"><option value=""></option><option value="DIST_HEAD">DIST HEAD</option><option value="GPS">GPS</option></select>');
    }
    else if(action_selector.val() == "HAND"){
-     class_to_change.append(' <select id="ACTION_CLASS_SELECT_'+mission+'_'+nth_action+'"><option value=""></option><option value="GRAB">GRAB</option><option value="ROTATE">ROTATE</option></select>');
+     class_to_change.append(' <select class="sub_action" id="ACTION_CLASS_SELECT_'+mission+'_'+nth_action+'"><option value=""></option><option value="GRAB">GRAB</option><option value="ROTATE">ROTATE</option></select>');
    }
 
    var action_type_selection = $("#ACTION_CLASS_SELECT_"+ mission + "_" + nth_action);
@@ -149,29 +243,18 @@ $('.table-add').click(function () {
     		params_to_update.append('<select class="grab"><option value="OPEN">OPEN</option><option value="CLOSE">CLOSE</option></select>');
     	}
     	else if(action_type_selection.val() == "GPS"){
-    		params_to_update.append('lat: <input type="text" class="x"></input> <br> long: <input type="text" class="y"></input>');
+    		params_to_update.append('lat: <input type="text" class="lat"></input> <br> long: <input type="text" class="long"></input>');
     	}
     	else if(action_type_selection.val() == "DIST_HEAD"){
-    		params_to_update.append('angle: <br><input type="text" class="x"></input> <br> displacement(in meters): <input type="text" class="y"></input>');
+    		params_to_update.append('angle: <br><input type="text" class="angle"></input> <br> displacement(in meters): <br> <input type="text" class="displacement"></input>');
     	}
-    	else if(action_type_selection.val() == ""){
-    		    	params_to_update.empty();
+    	else{
+    		params_to_update.empty();
 
     	}
     });
 
-   });
-
- 	
-
-   
-
-   
-
-
-
-
-   
+   });  
     
 $('.table-remove').on('click', function () {
   console.log("YAY");
@@ -190,6 +273,8 @@ $('.table-down').click(function () {
   var $row = $(this).parents('tr');
   $row.next().after($row.get(0));
 });    
+
+
 });
 });
 
