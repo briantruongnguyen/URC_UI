@@ -3,7 +3,7 @@
 <head>
 	<title>Media Player PNaCl</title>
      <!-- Compiled and minified CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+  <link rel="stylesheet" href="materialize.min.css">
   <link rel="stylesheet" href="map/leaflet/leaflet.css">
 
   <!-- Compiled and minified JavaScript -->
@@ -14,13 +14,31 @@
     <style>
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
+
+      #sense_feed_depth{
+        top:10%;
+        height: 90%;
+        width: 45%;  
+        z-index: 5;
+        left: 0%;
+        position: absolute;
+      }
+
+      #sense_feed_color{
+        top:10%;
+        height: 90%;
+        width: 45%;  
+        z-index: 5;
+        left: 55%;
+        position: absolute;
+      }
       #map {
         padding: 0;
         margin: 0;
         height: 35%;
         width: 30%;
         z-index: 5;
-        top: 55%;
+        top: 65%;
         left: 70%;
         position: absolute;
       }
@@ -57,7 +75,7 @@ z-index: 6;
         }
         
         #arm {
-        top:60%;
+        top:30%;
           height: 40%;
         width: 16%;
         z-index: 5;
@@ -120,7 +138,7 @@ z-index: 6;
       .vxgplayer {
         z-index: 0;
         left: 0%;
-        max-height: 80%;
+        max-height: 90%;
         max-width: 100%;
         margin-left: 0%;
         margin-top: 0%;
@@ -404,59 +422,21 @@ object:hover {
   <div class="row">
     <div class="col s12">
       <ul class="tabs">
-        <li class="tab col s4"><a class="active" href="#test1">Overall Rover Status</a></li>
-        <li class="tab col s4"><a href="#test2">Rover Arm Status</a></li>
-        <li class="tab col s4"><a href="#test3">Scientific Data Status</a></li>
+        <li class="tab col s3"><a class="Need_Video" href="#test1">Overall Rover Status</a></li>
+        <li class="tab col s3"><a class="Need_Video" href="#test2">Rover Arm Status</a></li>
+        <li class="tab col s3"><a class="No_Video" href="#test3">Control Station</a></li>
+        <li class="tab col s3"><a class="No_Video" href="#test4">RealSense Feed</a></li>
+
       </ul>
     </div>
     <div id="test1" class="col s12">
    
-        
+           <div id="map"></div>
+                <canvas id="powergraph"></canvas>
 
         <div id="wrapper">
-  <div class="viewport">
-    <div class="cube">
-      <div class="side">
-        <div class="cube-image"></div>
-      </div>
-      <div class="side">
-        <div class="cube-image"></div>
-      </div>
-      <div class="side">
-        <div class="cube-image"></div>
-      </div>
-      <div class="side">
-        <div class="cube-image"></div>
-      </div>
-      <div class="side">
-        <div class="cube-image"></div>
-      </div>
-      <div class="side">
-        <div class="cube-image active"></div>
-      </div>
-    </div>
-  </div>
-    <br>
-    <br>
-    <div class="row center-align">
-        <div class="col s4 center-align">
-            <p class="white-text">100</p>
-            <p class="white-text">100</p>
-            <p class="white-text">100</p>
-        </div>
-        <div class="col s4 center-align">
-             <p class="white-text">100</p>
-            <p class="white-text">100</p>
-            <p class="white-text">100</p>
-        </div>
-        <div class="col s4 center-align">
-             <p class="white-text">100</p>
-            <p class="white-text">100</p>
-            <p class="white-text">100</p>
-        </div>
-    </div>
- 
-</div>
+          <div id="3d_cube"></div>
+       </div>
 
     </div>
     <div id="test2" class="col s12">
@@ -482,7 +462,38 @@ object:hover {
 </div>
         </div>
     </div>
-    <div id="test3" class="col s12"></div>
+    <div id="test3" class="col s12">
+      <br>
+
+      <div class="row">
+          <div class="col s1">
+            <a id="ping" class="waves-effect waves-light btn-large">Ping</a>
+          </div>
+          <div class="col s1">
+            <a id="reset" class="waves-effect waves-light btn-large"> Reset</a>
+          </div>
+          <div class="col s3">
+            <a id="rotate_left" class="waves-effect waves-light btn-large">Rotate The Rover Carousel Left</a>
+          </div>
+          <div class="col s3">
+            <a id="rotate_right" class="waves-effect waves-light btn-large">Rotate The Rover Carousel Right</a>
+          </div>
+          <div class="col s2">
+            <a id="flag_pole" class="waves-effect waves-light btn-large">Set Flag Pole Mode</a>
+          </div>
+          <div class="col s2">
+            <a id="shake_mode" class="waves-effect waves-light btn-large">Shake Mode</a>
+          </div>
+      </div>
+    </div>
+    <div id="test4" class="col s12">
+        <img id="sense_feed_color" src="" />
+        <img id="sense_feed_depth" src="" />
+      </div>
+
+
+    </div>
+
   </div>
     
      <div class="vxgplayer" 
@@ -500,173 +511,6 @@ nmf-path="pnacl/Release/media_player.nmf"
 style = "height:100%; width:100%;"
 
 ></div> 
-    
-    <div id="map"></div>
-                <canvas id="powergraph"></canvas>
-    
-    <div id="navcontainer" class="row">
-        <br>
-        <div class="col s2">
-        <a class="btn btn-floating pulse dropdown-button" data-activates='dropdown1'>+</a>
-        <a class="btn">Syncing...</a>
-
-            </div>
-        <div class="col s10">
-
-   <ul id="navlist">
-
-    <li><a>ARM Action</a> <a>Grip: True</a> <a>XYZ: (1,2,3)</a></li>
-    <li><a href="#!">DRIVE Action</a></li>
-    <li><a href="#!">HAND Action</a></li>
-   </ul>
-    </div>
-</div>
-    
-  <ul id='dropdown1' class='dropdown-content'>
-    <li><a href="#armmodal">ARM</a></li>
-    <li><a href="#drivemodal">DRIVE</a></li>
-    <li><a href="#handmodal">HAND</a></li>
-    <li class="divider"></li>
-    <li><a href="#missionmodal" class="red-text">MISSION</a></li>
-
-
-  </ul>
-
-    
-   <!--Arm Modal Structure -->
-  <div id="armmodal" class="modal">
-    <div class="modal-content">
-        <h4>Add a New Arm Task</h4>
-        <a class='dropdown-button btn' href='#' data-activates='arm_task'>Select an Action</a>
-         <ul id='arm_task' class='dropdown-content'>
-             <li><a href="#!">Grip</a></li>
-             <li><a href="#!">Rotate</a></li>
-          </ul>
-        
-        <br>
-        <br>
-        
-        <a class='dropdown-button btn' href='#' data-activates='grip_selection'>Select Grip Mode</a>
-         <ul id='grip_selection' class='dropdown-content'>
-             <li><a href="#!">True</a></li>
-             <li><a href="#!">False</a></li>
-          </ul>
-        
-        <div class="row">
-            <div class="input-field col s4">
-            <input placeholder="x coordinate" id="first_name" type="text" class="validate">
-            </div>
-            <div class="input-field col s4">
-             <input placeholder="y coordinate" id="first_name" type="text" class="validate">
-            </div>
-            <div class="input-field col s4">
-             <input placeholder="z coordinate" id="first_name" type="text" class="validate">
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
-      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
-    </div>
-  </div>
-    
-  
-  <!--Drive Modal Structure -->
-  <div id="drivemodal" class="modal">
-    <div class="modal-content">
-        
-      <h4>Add a New Drive Task</h4>
-          <a class='dropdown-button btn' href='#' data-activates='drive_task'>Select an Action</a>
-          <ul id='drive_task' class='dropdown-content'>
-             <li><a href="#!">Displacement</a></li>
-             <li><a href="#!">GPS</a></li>
-          </ul>
-        <div class="input-field col s6">
-          <input placeholder="Displacement Value" id="first_name" type="text" class="validate">
-        </div>
-        <div class="row">
-            <div class="input-field col s4">
-            <input placeholder="x coordinate" id="first_name" type="text" class="validate">
-            </div>
-            <div class="input-field col s4">
-             <input placeholder="y coordinate" id="first_name" type="text" class="validate">
-            </div>
-            <div class="input-field col s4">
-             <input placeholder="z coordinate" id="first_name" type="text" class="validate">
-            </div>
-        </div>
-      
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
-      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
-    </div>
-  </div>
-    
-  <!--Hand Modal Structure -->
-  <div id="handmodal" class="modal">
-    <div class="modal-content">
-      <h4>Add a New Hand Task</h4>
-         <a class='dropdown-button btn' href='#' data-activates='hand_task'>Select an Action</a>
-
-         <ul id='hand_task' class='dropdown-content'>
-             <li><a href="#!">Press</a></li>
-             <li><a hrpef="#!">Lever</a></li>
-             <li><a href="#!">Valve</a></li>
-             <li><a href="#!">Drill</a></li>
-          </ul>
-      
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
-      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
-    </div>
-  </div
-      
- <!--Mission Modal Structure -->
-  <div id="missionmodal" class="modal">
-    <div class="modal-content">
-                <a class="btn btn-floating">+</a>
-
-      <h4>Mission Management</h4>
-         <div class="row">
-    <div class="col s12">
-      <ul class="tabs">
-        <li class="tab col s2"><a href="#mission1">Test 1</a></li>
-        <li class="tab col s2"><a href="#mission2">Test 2</a></li>
-        <li class="tab col s2"><a href="#mission3">Disabled Tab</a></li>
-        <li class="tab col s2"><a href="#mission4">Test 4</a></li>
-      </ul>
-    </div>
-    <div id="mission1" class="col s12"></div>
-    <div id="mission2" class="col s12">Test 2</div>
-    <div id="mission3" class="col s12">Test 3</div>
-    <div id="mission4" class="col s12">Test 4</div>
-  </div>
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
-      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
-    </div>
-  </div>
-
-
-    
-    
-
-
-            
-
-    
-
-    
-
-
-    
-    
-    
-
-    
 
        <script type="text/javascript" 
 
@@ -674,21 +518,178 @@ style = "height:100%; width:100%;"
 
     
   
-    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
- <script
-  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-  crossorigin="anonymous"></script>
+    <script src="jquery-2.1.1.min.js"></script>
+    <script src="socket.io-1.3.5.js"></script>
+
     <script type="text/javascript" src="smoothie.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+    <script src="Chart.js"></script>
+    <script src="materialize.min.js"></script>
     <script src="map/leaflet/leaflet-src.js"></script>
+     <script src="three.js"></script>
 
 
     
     <script>
     $(document).ready(function(){
- 
+
+// public method for encoding an Uint8Array to base64
+function encode (input) {
+    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var output = "";
+    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+    var i = 0;
+
+    while (i < input.length) {
+        chr1 = input[i++];
+        chr2 = i < input.length ? input[i++] : Number.NaN; // Not sure if the index 
+        chr3 = i < input.length ? input[i++] : Number.NaN; // checks are needed here
+
+        enc1 = chr1 >> 2;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+
+        if (isNaN(chr2)) {
+            enc3 = enc4 = 64;
+        } else if (isNaN(chr3)) {
+            enc4 = 64;
+        }
+        output += keyStr.charAt(enc1) + keyStr.charAt(enc2) +
+                  keyStr.charAt(enc3) + keyStr.charAt(enc4);
+    }
+    return output;
+}
+
+
+
+var socket = io('http://localhost:3001', {transports: ['websocket'], upgrade: false});
+var curr_x = 0;
+var curr_y = 0;
+var curr_z = 0;
+socket.on('data', function(message){
+  console.log('From Beaglebone to GUI ' + message.message);
+});
+
+socket.on('sense_feed_color', function(message){
+  console.log('We got an image')
+  document.getElementById("sense_feed_color").src = 'data:image/png;base64,' + encode(new Uint8Array(message));
+});
+
+socket.on('sense_feed_depth', function(message){
+  console.log('We got an image')
+  document.getElementById("sense_feed_depth").src = 'data:image/png;base64,' + encode(new Uint8Array(message));
+});
+
+$("#ping").on('click', function(){
+  console.log("ping")
+  socket.emit('ping', "1")
+})
+$("#reset").on('click', function(){
+  console.log("Reset")
+  socket.emit('reset', "1")
+})
+$("#rotate_left").on('click', function(){
+  console.log("Rotate Left")
+  socket.emit('rotate_left', "1")
+})
+$("#rotate_right").on('click', function(){
+  console.log("Rotate Right")
+  socket.emit('rotate_right', "1")
+})
+$("#flag_pole").on('click', function(){
+  console.log("Flag")
+  socket.emit('flag_pole', "1")
+})
+$("#shake_mode").on('click', function(){
+  console.log("shake")
+  socket.emit('shake', "1")
+})
+
+
+    var rover;
+        var map = L.map('map').setView([38.4068592, -110.7918995], 15);
+         L.tileLayer('map/ter_tiles/{z0}/{x0}/{x1}/{y0}/{y1}.png').addTo(map);
+        var marsdesertresearch = L.marker([38.4068592, -110.7918995]).addTo(map).bindPopup("Mars Desert Research Station").openPopup();
+        var roverIcon = L.icon({
+            iconUrl: 'map/rover-icon.png',
+            iconSize: [50, 50], // size of the icon
+            iconAnchor: [25, 25], // point of the icon which will correspond to marker's location
+            popupAnchor: [0, -51] 
+        });
+        rover = L.marker([38.4068592, -110.7918995], {icon: roverIcon}).addTo(map);
+
+    socket.on('gps', function(message){
+        console.log("GPS CALLBACK")
+        console.log(message)
+        parsed_data = JSON.parse(message)
+        // console.log(dataArray);
+        lat = parsed_data["lat"]
+        long = parsed_data["long"]
+        var newLatLng = new L.LatLng(lat, lng);
+        rover.setLatLng(newLatLng); 
+    });
+
+
+ socket.on('imu', function(message){
+        console.log("IMU CALLBACK")
+        console.log(message)
+        parsed_data = JSON.parse(message)
+        // console.log(dataArray);
+        curr_x += parsed_data["x"]
+        curr_y += parsed_data["y"]
+        curr_z += parsed_data["z"]
+        rotateCube(curr_x, curr_y, curr_z);
+});
+
+          var scene, camera, renderer;
+      var WIDTH  = window.innerWidth/4;
+      var HEIGHT = window.innerHeight/4;
+      var SPEED = 0.01;
+      function init() {
+          scene = new THREE.Scene();
+          initCube();
+          initCamera();
+          initRenderer();
+          var cube = document.getElementById("3d_cube")
+          cube.appendChild(renderer.domElement);
+      }
+      function initCamera() {
+          camera = new THREE.PerspectiveCamera(70, WIDTH / HEIGHT, 1, 10);
+          camera.position.set(0, 5, 7);
+          camera.lookAt(scene.position);
+      }
+      function initRenderer() {
+          renderer = new THREE.WebGLRenderer({ antialias: true });
+          renderer.setSize(WIDTH, HEIGHT);
+      }
+      function initCube() {
+          cube = new THREE.Mesh(new THREE.CubeGeometry(4, 4, 4), new THREE.MeshNormalMaterial());
+          scene.add(cube);
+      }
+      function render() {
+          requestAnimationFrame(render);
+          renderer.render(scene, camera);
+      }
+      var angle = 0;
+      init();
+      render();
+
+
+      function rotateCube(yaw, pitch, roll) {
+          cube.rotation.x = roll * (Math.PI/180);
+          cube.rotation.z = pitch * (Math.PI/180);
+          cube.rotation.y = yaw * (Math.PI/180);
+      }
+
+
+
+        $(".Need_Video").on("click", function(){
+            document.getElementById("vxg_media_player1").style.visibility = "visible";
+        });
+        $(".No_Video").on("click", function(){
+            document.getElementById("vxg_media_player1").style.visibility = "hidden";
+        });
+
         console.log("Ready!");
             $('.modal').modal();
        var smoothie = new SmoothieChart({minValue: 0, maxValue: 1,
@@ -740,367 +741,12 @@ function autoRotate(){
 }
         setInterval(autoRotate, 5000)
         
-$( "#navlist" ).sortable();
     });
-        
-        var map = L.map('map').setView([38.4065206, -110.7935204], 4);
-         L.tileLayer('map/ter_tiles/{z0}/{x0}/{x1}/{y0}/{y1}.png').addTo(map);
-        var marsdesertresearch = L.marker([38.4065206, -110.7935204]).addTo(map).bindPopup("Mars Desert Research Station").openPopup();
-        var roverIcon = L.icon({
-            iconUrl: 'map/rover-icon.png',
-            iconSize: [50, 50], // size of the icon
-            iconAnchor: [25, 25], // point of the icon which will correspond to marker's location
-            popupAnchor: [0, -51] 
-        });
-        L.marker([38.4165206, -110.8035204], {icon: roverIcon}).addTo(map);
+
 
     </script>
 
-    <script>
-    var events = new Events();
-events.add = function(obj) {
-  obj.events = { };
-}
-events.implement = function(fn) {
-  fn.prototype = Object.create(Events.prototype);
-}
 
-function Events() {
-  this.events = { };
-}
-Events.prototype.on = function(name, fn) {
-  var events = this.events[name];
-  if (events == undefined) {
-    this.events[name] = [ fn ];
-    this.emit('event:on', fn);
-  } else {
-    if (events.indexOf(fn) == -1) {
-      events.push(fn);
-      this.emit('event:on', fn);
-    }
-  }
-  return this;
-}
-Events.prototype.once = function(name, fn) {
-  var events = this.events[name];
-  fn.once = true;
-  if (!events) {
-    this.events[name] = [ fn ];
-    this.emit('event:once', fn);
-  } else {
-    if (events.indexOf(fn) == -1) {
-      events.push(fn);
-      this.emit('event:once', fn);
-    }
-  }
-  return this;
-}
-Events.prototype.emit = function(name, args) {
-  var events = this.events[name];
-  if (events) {
-    var i = events.length;
-    while(i--) {
-      if (events[i]) {
-        events[i].call(this, args);
-        if (events[i].once) {
-          delete events[i];
-        }
-      }
-    }
-  }
-  return this;
-}
-Events.prototype.unbind = function(name, fn) {
-  if (name) {
-    var events = this.events[name];
-    if (events) {
-      if (fn) {
-        var i = events.indexOf(fn);
-        if (i != -1) {
-          delete events[i];
-        }
-      } else {
-        delete this.events[name];
-      }
-    }
-  } else {
-    delete this.events;
-    this.events = { };
-  }
-  return this;
-}
-
-var userPrefix;
-
-var prefix = (function () {
-  var styles = window.getComputedStyle(document.documentElement, ''),
-    pre = (Array.prototype.slice
-      .call(styles)
-      .join('') 
-      .match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o'])
-    )[1],
-    dom = ('WebKit|Moz|MS|O').match(new RegExp('(' + pre + ')', 'i'))[1];
-  userPrefix = {
-    dom: dom,
-    lowercase: pre,
-    css: '-' + pre + '-',
-    js: pre[0].toUpperCase() + pre.substr(1)
-  };
-})();
-
-function bindEvent(element, type, handler) {
-  if(element.addEventListener) {
-    element.addEventListener(type, handler, false);
-  } else {
-    element.attachEvent('on' + type, handler);
-  }
-}
-
-function Viewport(data) {
-  events.add(this);
-
-  var self = this;
-
-  this.element = data.element;
-  this.fps = data.fps;
-  this.sensivity = data.sensivity;
-  this.sensivityFade = data.sensivityFade;
-  this.touchSensivity = data.touchSensivity;
-  this.speed = data.speed;
-
-  this.lastX = 0;
-  this.lastY = 0;
-  this.mouseX = 0;
-  this.mouseY = 0;
-  this.distanceX = 0;
-  this.distanceY = 0;
-  this.positionX = 0;
-  this.positionY =0;
-  this.torqueX = 0;
-  this.torqueY = 0;
-
-  this.down = false;
-  this.upsideDown = false;
-
-  this.previousPositionX = 0;
-  this.previousPositionY = 0;
-
-  this.currentSide = 0;
-  this.calculatedSide = 0;
-
-
-  bindEvent(document, 'mousedown', function() {
-    self.down = true;
-  });
-
-  bindEvent(document, 'mouseup', function() {
-    self.down = false;
-  });
   
-  bindEvent(document, 'keyup', function() {
-    self.down = false;
-  });
-
-  bindEvent(document, 'mousemove', function(e) {
-    self.mouseX = e.pageX;
-    self.mouseY = e.pageY;
-  });
-
-  bindEvent(document, 'touchstart', function(e) {
-
-    self.down = true;
-    e.touches ? e = e.touches[0] : null;
-    self.mouseX = e.pageX / self.touchSensivity;
-    self.mouseY = e.pageY / self.touchSensivity;
-    self.lastX  = self.mouseX;
-    self.lastY  = self.mouseY;
-  });
-
-  bindEvent(document, 'touchmove', function(e) {
-    if(e.preventDefault) { 
-      e.preventDefault();
-    }
-
-    if(e.touches.length == 1) {
-
-      e.touches ? e = e.touches[0] : null;
-
-      self.mouseX = e.pageX / self.touchSensivity;
-      self.mouseY = e.pageY / self.touchSensivity;
-
-    }
-  });
-
-  bindEvent(document, 'touchend', function(e) {
-    self.down = false;
-  });  
-
-  setInterval(this.animate.bind(this), this.fps);
-
-}
-events.implement(Viewport);
-Viewport.prototype.animate = function() {
-
-  this.distanceX = (this.mouseX - this.lastX);
-  this.distanceY = (this.mouseY - this.lastY);
-
-  this.lastX = this.mouseX;
-  this.lastY = this.mouseY;
-
-  if(this.down) {
-    this.torqueX = this.torqueX * this.sensivityFade + (this.distanceX * this.speed - this.torqueX) * this.sensivity;
-    this.torqueY = this.torqueY * this.sensivityFade + (this.distanceY * this.speed - this.torqueY) * this.sensivity;
-  }
-
-  if(Math.abs(this.torqueX) > 1.0 || Math.abs(this.torqueY) > 1.0) {
-    if(!this.down) {
-      this.torqueX *= this.sensivityFade;
-      this.torqueY *= this.sensivityFade;
-    }
-
-    this.positionY -= this.torqueY;
-
-    if(this.positionY > 360) {
-      this.positionY -= 360;
-    } else if(this.positionY < 0) {
-      this.positionY += 360;
-    }
-
-    if(this.positionY > 90 && this.positionY < 270) {
-      this.positionX -= this.torqueX;
-
-      if(!this.upsideDown) {
-        this.upsideDown = true;
-        this.emit('upsideDown', { upsideDown: this.upsideDown });
-      }
-
-    } else {
-
-      this.positionX += this.torqueX;
-
-      if(this.upsideDown) {
-        this.upsideDown = false;
-        this.emit('upsideDown', { upsideDown: this.upsideDown });
-      }
-    }
-
-    if(this.positionX > 360) {
-      this.positionX -= 360;
-    } else if(this.positionX < 0) {
-      this.positionX += 360;
-    }
-
-    if(!(this.positionY >= 46 && this.positionY <= 130) && !(this.positionY >= 220 && this.positionY <= 308)) {
-      if(this.upsideDown) {
-        if(this.positionX >= 42 && this.positionX <= 130) {
-          this.calculatedSide = 3;
-        } else if(this.positionX >= 131 && this.positionX <= 223) {
-          this.calculatedSide = 2;
-        } else if(this.positionX >= 224 && this.positionX <= 314) {
-          this.calculatedSide = 5;
-        } else {
-          this.calculatedSide = 4;
-        }
-      } else {
-        if(this.positionX >= 42 && this.positionX <= 130) {
-          this.calculatedSide = 5;
-        } else if(this.positionX >= 131 && this.positionX <= 223) {
-          this.calculatedSide = 4;
-        } else if(this.positionX >= 224 && this.positionX <= 314) {
-          this.calculatedSide = 3;
-        } else {
-          this.calculatedSide = 2;
-        }
-      }
-    } else {
-      if(this.positionY >= 46 && this.positionY <= 130) {
-        this.calculatedSide = 6;
-      }
-
-      if(this.positionY >= 220 && this.positionY <= 308) {
-        this.calculatedSide = 1;
-      }
-    }
-
-    if(this.calculatedSide !== this.currentSide) {
-      this.currentSide = this.calculatedSide;
-      this.emit('sideChange');
-    }
-
-  }
-
-  this.element.style[userPrefix.js + 'Transform'] = 'rotateX(' + this.positionY + 'deg) rotateY(' + this.positionX + 'deg)';
-
-  if(this.positionY != this.previousPositionY || this.positionX != this.previousPositionX) {
-    this.previousPositionY = this.positionY;
-    this.previousPositionX = this.positionX;
-
-    this.emit('rotate');
-
-  }
-
-}
-var viewport = new Viewport({
-  element: document.getElementsByClassName('cube')[0],
-  fps: 20,
-  sensivity: .1,
-  sensivityFade: .93,
-  speed: 2,
-  touchSensivity: 1.5
-});
-
-function Cube(data) {
-  var self = this;
-
-  this.element = data.element;
-  this.sides = this.element.getElementsByClassName('side');
-
-  this.viewport = data.viewport;
-  this.viewport.on('rotate', function() {
-    self.rotateSides();
-  });
-  this.viewport.on('upsideDown', function(obj) {
-    self.upsideDown(obj);
-  });
-  this.viewport.on('sideChange', function() {
-    self.sideChange();
-  });
-}
-Cube.prototype.rotateSides = function() {
-  var viewport = this.viewport;
-  if(viewport.positionY > 90 && viewport.positionY < 270) {
-    this.sides[0].getElementsByClassName('cube-image')[0].style[userPrefix.js + 'Transform'] = 'rotate(' + (viewport.positionX + viewport.torqueX) + 'deg)';
-    this.sides[5].getElementsByClassName('cube-image')[0].style[userPrefix.js + 'Transform'] = 'rotate(' + -(viewport.positionX + 180 + viewport.torqueX) + 'deg)';
-  } else {
-    this.sides[0].getElementsByClassName('cube-image')[0].style[userPrefix.js + 'Transform'] = 'rotate(' + (viewport.positionX - viewport.torqueX) + 'deg)';
-    this.sides[5].getElementsByClassName('cube-image')[0].style[userPrefix.js + 'Transform'] = 'rotate(' + -(viewport.positionX + 180 - viewport.torqueX) + 'deg)';
-  }
-}
-Cube.prototype.upsideDown = function(obj) {
-
-  var deg = (obj.upsideDown == true) ? '180deg' : '0deg';
-  var i = 5;
-
-  while(i > 0 && --i) {
-    this.sides[i].getElementsByClassName('cube-image')[0].style[userPrefix.js + 'Transform'] = 'rotate(' + deg + ')';
-  }
-
-}
-Cube.prototype.sideChange = function() {
-
-  for(var i = 0; i < this.sides.length; ++i) {
-    this.sides[i].getElementsByClassName('cube-image')[0].className = 'cube-image';    
-  }
-
-  this.sides[this.viewport.currentSide - 1].getElementsByClassName('cube-image')[0].className = 'cube-image active';
-
-}
-
-new Cube({
-  viewport: viewport,
-  element: document.getElementsByClassName('cube')[0]
-});</script>
-
-    
 </body>
 </html>

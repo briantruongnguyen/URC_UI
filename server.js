@@ -48,11 +48,38 @@ io.on('connection', (socket) => {
    socket.on('stop', (message) =>{
 	console.log("Publishing stop")
    client.publish("stop", message)
+	});
+   socket.on('ping', (message) =>{
+	console.log("Publishing ping")
+   client.publish("ping", message)
+	});
+   socket.on('reset', (message) =>{
+	console.log("Publishing reset")
+   client.publish("reset", message)
+	});
+   socket.on('rotate_left', (message) =>{
+	console.log("Publishing rotate_left")
+   client.publish("rotate_left", message)
+	});
+    socket.on('rotate_right', (message) =>{
+	console.log("Publishing rotate_right")
+   client.publish("rotate_right", message)
+	});
+	socket.on('flag_pole', (message) =>{
+	console.log("Publishing flag_pole")
+   client.publish("flag_pole", message)
+	});
+	socket.on('shake', (message) =>{
+	console.log("Publishing shake")
+    client.publish("shake", message)
+	});
+	socket.on('itinerary', (message) =>{
+	console.log("Publishing itinerary")
+	console.log(message);
+    client.publish("itinerary", message)
+	});
+
 });
-});
-
-
-
 
 console.log("Connecting client...")
 var client  = mqtt.connect('mqtt://localhost:1883',{
@@ -66,14 +93,33 @@ client.on('connect', function () {
   client.subscribe('temperature')
   client.subscribe('shutdown_ack')
   client.subscribe('stop_ack')
-  client.subscribe('sense_feed')
+  client.subscribe('sense_feed_color')
+  client.subscribe('sense_feed_depth')
+  client.subscribe('imu')
+
   client.publish('controls', 'Hello mqtt')
 })
  
 client.on('message', function (topic, message) {
   // message is Buffer 
-  if(topic == 'sense_feed'){
-  	io.sockets.emit('sense_feed', message)
+  if(topic == 'sense_feed_color'){
+  	io.sockets.emit('sense_feed_color', message)
+  	return;
+  }
+  if(topic == 'sense_feed_depth'){
+  	io.sockets.emit('sense_feed_depth', message)
+  	return;
+  }
+
+  if(topic == 'imu'){
+  	console.log('Emit imu ' + message.toString())
+  	io.sockets.emit('imu', message.toString())
+  	return;
+  }
+  if(topic == 'gps'){
+  	console.log('Emit gps ' + message.toString())
+  	io.sockets.emit('gps', message.toString())
+  	return;
   }
   console.log(message.toString())
   io.sockets.emit('data', {message: message.toString()})
