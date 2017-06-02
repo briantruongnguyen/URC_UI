@@ -91,6 +91,13 @@ var client  = mqtt.connect('mqtt://localhost:1883',{
 client.on('connect', function () {
   console.log("connected")
   client.subscribe('temperature')
+  client.subscribe('altitude')
+  client.subscribe('abs_pressure')
+  client.subscribe('sea_pressure')
+  client.subscribe('humidity')
+  client.subscribe('voltage')
+  client.subscribe('magnetometer')
+
   client.subscribe('shutdown_ack')
   client.subscribe('stop_ack')
   client.subscribe('sense_feed_color')
@@ -101,6 +108,49 @@ client.on('connect', function () {
 })
  
 client.on('message', function (topic, message) {
+  if(topic == 'temperature'){
+  	console.log('altitude ' + message.toString())
+  	io.sockets.emit('temperature', message.toString())
+  	return;
+  }
+  if(topic == 'altitude'){
+  	console.log('altitude ' + message.toString())
+  	io.sockets.emit('altitude', message.toString())
+  	return;
+  }
+  if(topic == 'abs_pressure'){
+  	console.log('abs_pressure ' + message.toString())
+  	io.sockets.emit('abs_pressure', message.toString())
+  	return;
+  }
+  if(topic == 'sea_pressure'){
+  	console.log('sea_pressure ' + message.toString())
+  	io.sockets.emit('sea_pressure', message.toString())
+  	return;
+  }
+  if(topic == 'humidity'){
+  	console.log('humidity ' + message.toString())
+  	io.sockets.emit('humidity', message.toString())
+  	return;
+  }
+  if(topic == 'voltage'){
+  	console.log('voltage ' + message.toString())
+  	io.sockets.emit('voltage', message.toString())
+  	return;
+  }
+  if(topic == 'magnetometer'){
+  	console.log('magnetometer ' + message.toString())
+  	io.sockets.emit('magnetometer', message.toString())
+  	return;
+  }
+
+
+
+
+
+
+
+
   // message is Buffer 
   if(topic == 'sense_feed_color'){
   	io.sockets.emit('sense_feed_color', message)
